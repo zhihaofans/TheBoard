@@ -17,7 +17,10 @@ class Keyboard {
   getAllText() {
     return $keyboard.getAllText();
   }
-paste(){
-  this.insert()
+  paste() {
+    if ($clipboard.text) {
+      this.insert($clipboard.text);
+    }
+  }
 }
-}
+module.exports = Keyboard;
