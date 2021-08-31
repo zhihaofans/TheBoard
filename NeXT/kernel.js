@@ -20,6 +20,7 @@ class ViewLoader {
       viewList: {}
     };
     this.launchViewId = "";
+    this.keyboardViewId = "";
   }
   registerView({ id, title, icon, fileName, func }) {
     if (id && title && fileName && func) {
@@ -60,6 +61,24 @@ class ViewLoader {
       });
     }
   }
+  setKeyboardViewId(id) {
+    if (
+      id &&
+      this.viewList.viewIdList.indexOf(id) >= 0 &&
+      this.viewList.viewList[id]
+    ) {
+      this.keyboardViewId = id;
+    } else {
+      if (this.debug === true) {
+        $console.error(id);
+      }
+      throw new UserException({
+        name: "setKeyboardViewId",
+        message: "set keyboard view id failed, can not find this view id",
+        source: "code"
+      });
+    }
+  }
   openView(viewId, AppKernel = undefined) {
     if (viewId && this.viewList.viewList[viewId]) {
       const launchViewItem = this.viewList.viewList[viewId];
@@ -90,6 +109,9 @@ class ViewLoader {
   }
   openLaunchView(AppKernel = undefined) {
     this.openView(this.launchViewId, AppKernel);
+  }
+  openKeyboardView(AppKernel = undefined) {
+    this.openView(this.keyboardViewId, AppKernel);
   }
 }
 
