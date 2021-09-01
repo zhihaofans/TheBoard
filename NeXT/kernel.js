@@ -14,7 +14,7 @@ class ViewItem {
 
 class ViewLoader {
   constructor({ debug }) {
-    this.debug = debug === true;
+    this.DEBUG_MODE = debug === true;
     this.viewList = {
       viewIdList: [],
       viewList: {}
@@ -33,7 +33,7 @@ class ViewLoader {
       });
       this.viewList.viewIdList.push(id);
     } else {
-      if (this.debug === true) {
+      if (this.DEBUG_MODE === true) {
         $console.info({ id, title, icon, fileName, func });
       }
       throw new UserException({
@@ -130,15 +130,15 @@ class Config {
 class Kernel {
   constructor({ debugMode, keyboardMode }) {
     this.appInfo = $addin.current;
-    this.debug = debugMode === true;
-    this.keyboardMode = keyboardMode;
+    this.DEBUG_MODE = debugMode === true;
+    this.KEYBOARD_MODE = keyboardMode;
     this.config = new Config();
     this.update = new update({
       appVersion: this.appInfo.version,
       updateConfigUrl: undefined
     });
     this.viewLoader = new ViewLoader({
-      debug: this.debug
+      debug: this.DEBUG_MODE
     });
   }
 }
