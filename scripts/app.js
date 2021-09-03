@@ -5,7 +5,8 @@ class AppKernel extends Kernel {
   constructor() {
     super({ debugMode: true });
     this.global = {
-      SQLITE_DIR: "/assets/.files/sqlite/"
+      SQLITE_DIR: "/assets/.files/sqlite/",
+      KEYBOARD_HEIGHT: 360
     };
     this.viewLoader.registerView({
       id: "main",
@@ -21,11 +22,11 @@ class AppKernel extends Kernel {
       fileName: "keyboard.js",
       func: "init"
     });
-    this.viewLoader.setLaunchViewId("main");
+    this.viewLoader.setLaunchViewId("keyboard");
     this.viewLoader.setKeyboardViewId("keyboard");
   }
   init() {
-    if (this.debug === true) {
+    if (this.DEBUG_MODE === true) {
       $console.info("init");
       $console.info(this.appInfo);
     }
