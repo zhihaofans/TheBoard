@@ -3,6 +3,7 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
   kb = new $$KeyBoard({ barHidden: true }),
   { AppClipboard } = require("../api/clipboard"),
   initClipView = () => {
+    const clipText = $clipboard.text;
     $ui.push({
       props: {
         id: "keyboard_clip",
@@ -15,15 +16,65 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
           props: {
             data: [
               {
-                title: $clipboard.text ? "点击粘贴" : "剪切板为空",
-                rows: [$clipboard.text]
+                title: clipText ? "点击粘贴" : "剪切板为空",
+                rows: [
+                  clipText != null && clipText != undefined
+                    ? clipText
+                    : undefined
+                ]
               }
             ]
           },
           layout: $layout.fill,
           events: {
             didSelect: (_sender, indexPath, _data) => {
-              kb.insert(_data);
+              if (_data != null && _data != undefined) {
+                kb.insert(_data);
+              }
+            }
+          }
+        }
+      ]
+    });
+  },
+  initActionView = () => {
+    $ui.push({
+      props: {
+        id: "keyboard_action",
+        title: "动作",
+        navBarHidden: true
+      },
+      views: [
+        {
+          type: "list",
+          props: {
+            data: [
+              {
+                title: "文字",
+                rows: ["分享"]
+              }
+            ]
+          },
+          layout: $layout.fill,
+          events: {
+            didSelect: (_sender, indexPath, _data) => {
+              const section = indexPath.section,
+                row = indexPath.row;
+              switch (section) {
+                case 0:
+                  switch (row) {
+                    case 0:
+                      $keyboard.getAllText(text => {
+                        if (text) {
+                          $share.sheet([text]);
+                        } else {
+                          $ui.toast("空白内容，无法分享");
+                        }
+                      });
+                      break;
+                  }
+                  break;
+              }
             }
           }
         }
@@ -105,6 +156,9 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
               switch (row) {
                 case 0:
                   initClipView(appKernel);
+                  break;
+                case 1:
+                  initActionView(appKernel);
                   break;
               }
             }
