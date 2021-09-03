@@ -13,8 +13,9 @@ class ViewItem {
 }
 
 class ViewLoader {
-  constructor({ debug }) {
-    this.DEBUG_MODE = debug === true;
+  constructor({ appKernel }) {
+    this.appKernel = appKernel;
+    this.DEBUG_MODE = this.appKernel.DEBUG_MODE === true;
     this.viewList = {
       viewIdList: [],
       viewList: {}
@@ -51,7 +52,7 @@ class ViewLoader {
     ) {
       this.launchViewId = id;
     } else {
-      if (this.debug === true) {
+      if (this.DEBUG_MODE === true) {
         $console.error(id);
       }
       throw new UserException({
@@ -69,7 +70,7 @@ class ViewLoader {
     ) {
       this.keyboardViewId = id;
     } else {
-      if (this.debug === true) {
+      if (this.DEBUG_MODE === true) {
         $console.error(id);
       }
       throw new UserException({
@@ -107,11 +108,11 @@ class ViewLoader {
       });
     }
   }
-  openLaunchView(AppKernel = undefined) {
-    this.openView(this.launchViewId, AppKernel);
+  openLaunchView() {
+    this.openView(this.launchViewId, this.appKernel);
   }
-  openKeyboardView(AppKernel = undefined) {
-    this.openView(this.keyboardViewId, AppKernel);
+  openKeyboardView() {
+    this.openView(this.keyboardViewId, this.appKernel);
   }
 }
 
@@ -138,7 +139,7 @@ class Kernel {
       updateConfigUrl: undefined
     });
     this.viewLoader = new ViewLoader({
-      debug: this.DEBUG_MODE
+      appKernel: this
     });
   }
 }
