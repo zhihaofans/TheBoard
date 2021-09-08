@@ -28,7 +28,7 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
           layout: $layout.fill,
           events: {
             didSelect: (_sender, indexPath, _data) => {
-              if (_data != null && _data != undefined) {
+              if (kb.isKeyboard() && _data != null && _data != undefined) {
                 kb.insert(_data);
               }
             }

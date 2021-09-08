@@ -56,6 +56,7 @@ class AppClipboard {
     const timestamp = 0,
       uuid = this.generateUUID(),
       clipItem = new ClipboardItem(timestamp, uuid, group, data);
+    this.SQLITE.addNewItem(clipItem);
   }
 }
 module.exports = {
