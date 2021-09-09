@@ -1,144 +1,141 @@
 {
-  "props" : {
-    "debugging" : true,
-    "id" : "kb.ux",
-    "statusBarHidden" : false,
-    "keys" : [
+  "props": {
+    "debugging": true,
+    "id": "kb.ux",
+    "statusBarHidden": false,
+    "keys": [
 
     ],
-    "statusBarStyle" : 0,
-    "navBarHidden" : false
+    "statusBarStyle": 0,
+    "navBarHidden": false
   },
-  "views" : [
-    {
-      "props" : {
-        "opaque" : false,
-        "clipsToBounds" : false,
-        "enabled" : true,
-        "frame" : {
-          "y" : 10,
-          "x" : 10,
-          "width" : 394,
-          "height" : 30
+  "views": [{
+      "props": {
+        "opaque": false,
+        "clipsToBounds": false,
+        "enabled": true,
+        "frame": {
+          "y": 10,
+          "x": 10,
+          "width": 394,
+          "height": 30
         },
-        "id" : "tab",
-        "highlighted" : false,
-        "selected" : false,
-        "hidden" : false,
-        "exclusiveTouch" : false,
-        "items" : [
+        "id": "tab",
+        "highlighted": false,
+        "selected": false,
+        "hidden": false,
+        "exclusiveTouch": false,
+        "items": [
           "剪切板",
           "B",
           "C"
         ],
-        "index" : 0
+        "index": 0
       },
-      "constraints" : [
-        {
-          "relation" : 0,
-          "multiplier" : 1,
-          "x" : {
-            "id" : "tab",
-            "attribute" : 1
+      "constraints": [{
+          "relation": 0,
+          "multiplier": 1,
+          "x": {
+            "id": "tab",
+            "attribute": 1
           },
-          "constant" : 10
+          "constant": 10
         },
         {
-          "relation" : 0,
-          "multiplier" : 1,
-          "x" : {
-            "id" : "tab",
-            "attribute" : 2
+          "relation": 0,
+          "multiplier": 1,
+          "x": {
+            "id": "tab",
+            "attribute": 2
           },
-          "constant" : -10
+          "constant": -10
         },
         {
-          "relation" : 0,
-          "multiplier" : 1,
-          "x" : {
-            "id" : "tab",
-            "attribute" : 3
+          "relation": 0,
+          "multiplier": 1,
+          "x": {
+            "id": "tab",
+            "attribute": 3
           },
-          "constant" : 5
+          "constant": 5
         }
       ],
-      "type" : "tab",
-      "events" : {
-        "changed" : {
-          "$type" : "$event",
-          "$props" : {
-            "selector" : "changed"
+      "type": "tab",
+      "events": {
+        "changed": {
+          "$type": "$event",
+          "$props": {
+            "selector": "changed"
           }
         }
       }
     },
     {
-      "type" : "list",
-      "props" : {
-        "frame" : {
-          "y" : 246,
-          "x" : 47,
-          "width" : 320,
-          "height" : 240
+      "type": "list",
+      "props": {
+        "frame": {
+          "y": 246,
+          "x": 47,
+          "width": 320,
+          "height": 240
         },
-        "data" : [
+        "data": [
           "Objective-C",
           "Swift",
           "JavaScript"
         ],
-        "id" : "list_items",
-        "bgcolor" : {
-          "$type" : "$color",
-          "$props" : {
-            "red" : 238,
-            "alpha" : 1,
-            "blue" : 241,
-            "green" : 241
+        "id": "list_items",
+        "bgcolor": {
+          "$type": "$color",
+          "$props": {
+            "red": 238,
+            "alpha": 1,
+            "blue": 241,
+            "green": 241
           }
         }
       },
-      "constraints" : [
-        {
-          "relation" : 0,
-          "multiplier" : 1,
-          "x" : {
-            "id" : "list_items",
-            "attribute" : 1
+      "constraints": [{
+          "relation": 0,
+          "multiplier": 1,
+          "x": {
+            "id": "list_items",
+            "attribute": 1
           },
-          "constant" : 10
+          "constant": 10
         },
         {
-          "relation" : 0,
-          "multiplier" : 1,
-          "x" : {
-            "id" : "list_items",
-            "attribute" : 2,
-            "safe-area" : false
+          "relation": 0,
+          "multiplier": 1,
+          "x": {
+            "id": "list_items",
+            "attribute": 2,
+            "safe-area": false
           },
-          "constant" : -10
+          "constant": -10
         },
         {
-          "y" : {
-            "id" : "tab",
-            "attribute" : 3,
-            "safe-area" : false
+          "y": {
+            "id": "tab",
+            "attribute": 3,
+            "safe-area": false
           },
-          "relation" : 0,
-          "multiplier" : 1,
-          "x" : {
-            "id" : "list_items",
-            "attribute" : 3
+          "relation": 0,
+          "multiplier": 1,
+          "x": {
+            "id": "list_items",
+            "attribute": 3
           },
-          "constant" : 40
+          "constant": 40
         },
         {
-          "relation" : 0,
-          "multiplier" : 1,
-          "x" : {
-            "id" : "list_items",
-            "attribute" : 4
+          "relation": 0,
+          "multiplier": 1,
+          "x": {
+            "id": "list_items",
+            "attribute": 4
           },
-          "constant" : 0
+          "constant": 0
         }
       ]
     }

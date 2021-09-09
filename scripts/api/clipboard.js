@@ -30,7 +30,59 @@ class SQLite {
     db.close();
     return result.result ? result : result.error;
   }
-  addNewItem(clipItem) {}
+  parseQueryResult(result, keys) {
+    try {
+      if (keys && result) {
+        if (result.error !== null) {
+          $console.error(result.error);
+          return undefined;
+        }
+        const sqlResult = result.result,
+          data = [];
+        while (sqlResult.next()) {
+          const dataItem = {};
+          if (keys.length > 0) {
+            keys.map(key => (dataItem[key] = sqlResult.get(key)));
+            data.push(dataItem);
+          }
+        }
+        sqlResult.close();
+        return data;
+      } else {
+        return undefined;
+      }
+    } catch (_ERROR) {
+      $console.error(`parseQueryResult:${_ERROR.message}`);
+      return undefined;
+    }
+  }
+  isItemExist() {}
+  addNewItem(clipItem) {
+    $console.error(clipItem);
+    try {
+      if (clipItem != undefined) {
+        const db = this.open(),
+          sql = `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES (?, ?, ?, ?)`,
+          args = [
+            clipItem.uuid,
+            clipItem.timestamp,
+            clipItem.group,
+            clipItem.data
+          ],
+          update_result = db.update(sql, args);
+        $console.error(sql);
+        if (update_result.result !== true) {
+          $console.error(update_result.error);
+        }
+        return update_result.result;
+      } else {
+        return false;
+      }
+    } catch (_ERROR) {
+      $console.error(`addNewItem:${_ERROR.message}`);
+      return false;
+    }
+  }
   editOldItem(uuid) {}
 }
 
@@ -53,10 +105,12 @@ class AppClipboard {
     return require("./uuid").generate();
   }
   add({ group, data }) {
-    const timestamp = 0,
+    const timestamp = new Date().getTime(),
       uuid = this.generateUUID(),
-      clipItem = new ClipboardItem(timestamp, uuid, group, data);
-    this.SQLITE.addNewItem(clipItem);
+      clipItem = new ClipboardItem(uuid, timestamp, group || "", data),
+      result = this.SQLITE.addNewItem(clipItem);
+    $console.info(result);
+    return result;
   }
 }
 module.exports = {

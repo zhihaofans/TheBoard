@@ -7,9 +7,10 @@ const { AppClipboard } = require("../api/clipboard"),
       text: "",
       handler: text => {
         if (text) {
-          appClip.add({
+          const addResult = appClip.add({
             data: text
           });
+          $ui.toast(addResult);
         }
       }
     });

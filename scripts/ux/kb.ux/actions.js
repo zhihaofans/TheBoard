@@ -1,5 +1,3 @@
-
-
-exports.changed = (sender) => {
-  $("list").data = data
-}
+exports.changed = sender => {
+  $("list").data = data;
+};
