@@ -11,6 +11,11 @@ class SQLite {
     this.tableId = {
       items: "items"
     };
+    this.sqlList = {
+      CREATE_ITEM_TABLE: `CREATE TABLE ${this.tableId.items}(uuid VARCHAR(100) PRIMARY KEY, timestamp BIGINT NOT NULL, group_id VARCHAR(100), data VARCHAR(100) NOT NULL);`,
+      ADD_NEW_ITEM: `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES (?, ?, ?, ?);`,
+      GET_ALL_ITEMS: `SELECT * FROM ${this.tableId.items};`
+    };
   }
   mkdir(sqlFilePath) {
     const { File } = require("../../NeXT/storage"),
@@ -24,9 +29,7 @@ class SQLite {
   }
   createItemTable() {
     const db = this.open(),
-      result = db.update(
-        `CREATE TABLE ${this.tableId.items}(uuid VARCHAR(100) PRIMARY KEY, timestamp BIGINT NOT NULL, group_id VARCHAR(100), data VARCHAR(100) NOT NULL)`
-      );
+      result = db.update(this.sqlList.CREATE_ITEM_TABLE);
     db.close();
     return result.result ? result : result.error;
   }
@@ -62,7 +65,7 @@ class SQLite {
     try {
       if (clipItem != undefined) {
         const db = this.open(),
-          sql = `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES (?, ?, ?, ?)`,
+          sql = `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES ('${clipItem.uuid}','${clipItem.timestamp}','${clipItem.group}','${clipItem.data}')`,
           args = [
             clipItem.uuid,
             clipItem.timestamp,
@@ -84,6 +87,10 @@ class SQLite {
     }
   }
   editOldItem(uuid) {}
+  getAllItems() {
+    const db = this.open(),
+      sql = `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES ('${clipItem.uuid}','${clipItem.timestamp}','${clipItem.group}','${clipItem.data}');`;
+  }
 }
 
 class SystemClipboard {
@@ -111,6 +118,9 @@ class AppClipboard {
       result = this.SQLITE.addNewItem(clipItem);
     $console.info(result);
     return result;
+  }
+  getAll() {
+    this.SQLITE;
   }
 }
 module.exports = {
