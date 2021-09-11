@@ -14,7 +14,7 @@ class SQLite {
     this.sqlList = {
       CREATE_ITEM_TABLE: `CREATE TABLE ${this.tableId.items}(uuid VARCHAR(100) PRIMARY KEY, timestamp BIGINT NOT NULL, group_id VARCHAR(100), data VARCHAR(100) NOT NULL);`,
       ADD_NEW_ITEM: `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES (?, ?, ?, ?);`,
-      GET_ALL_ITEMS: `SELECT * FROM ${this.tableId.items};`
+      GET_ALL_ITEMS: `SELECT * FROM items;`
     };
   }
   mkdir(sqlFilePath) {
@@ -28,8 +28,16 @@ class SQLite {
     return $sqlite.open(this.sqlFile);
   }
   createItemTable() {
-    const db = this.open(),
-      result = db.update(this.sqlList.CREATE_ITEM_TABLE);
+    const sql = `
+CREATE TABLE items(
+uuid TEXT NOT NULL,
+timestamp INTEGER,
+group_id TEXT,
+data TEXT,
+PRIMARY KEY(uuid)
+);`,
+      db = this.open(),
+      result = db.update(sql);
     db.close();
     return result.result ? result : result.error;
   }
@@ -44,6 +52,7 @@ class SQLite {
           data = [];
         while (sqlResult.next()) {
           const dataItem = {};
+          $console.info(sqlResult);
           if (keys.length > 0) {
             keys.map(key => (dataItem[key] = sqlResult.get(key)));
             data.push(dataItem);
@@ -65,15 +74,16 @@ class SQLite {
     try {
       if (clipItem != undefined) {
         const db = this.open(),
-          sql = `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES ('${clipItem.uuid}','${clipItem.timestamp}','${clipItem.group}','${clipItem.data}')`,
+          sql = `INSERT INTO items (uuid, timestamp, group_id, data) VALUES (?,?,?,?)`,
           args = [
             clipItem.uuid,
             clipItem.timestamp,
             clipItem.group,
             clipItem.data
           ],
-          update_result = db.update(sql, args);
-        $console.error(sql);
+          update_result = db.update({sql, args});
+        db.close();
+        $console.info(sql);
         if (update_result.result !== true) {
           $console.error(update_result.error);
         }
@@ -89,7 +99,17 @@ class SQLite {
   editOldItem(uuid) {}
   getAllItems() {
     const db = this.open(),
-      sql = `INSERT INTO ${this.tableId.items} (uuid, timestamp, group_id, data) VALUES ('${clipItem.uuid}','${clipItem.timestamp}','${clipItem.group}','${clipItem.data}');`;
+      sql = this.sqlList.GET_ALL_ITEMS,
+      updateResult = db.update({
+        sql
+      }),
+      parseResult = this.parseQueryResult(updateResult, [
+        "uuid",
+        "timestamp",
+        "group",
+        "data"
+      ]);
+    $console.error(updateResult.error);
   }
 }
 
@@ -120,7 +140,7 @@ class AppClipboard {
     return result;
   }
   getAll() {
-    this.SQLITE;
+    this.SQLITE.getAllItems();
   }
 }
 module.exports = {
