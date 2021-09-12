@@ -1,9 +1,13 @@
 const { AppClipboard } = require("../api/clipboard"),
   appClip = new AppClipboard(),
-  showAllClip = () => {
-    const clipItems = appClip.getAll();
+  showAllClip = async () => {
+    const clipItems = appClip.getAll(),
+      menuResult = await $ui.menu(clipItems.map(item => item.data));
+    //menuResult.index , menuResult.title
+    $console.info(clipItems[menuResult.index]);
   },
   initMainView = () => {
+    
     $ui.menu({
       items: ["新增", "查询"],
       handler: (title, idx) => {
