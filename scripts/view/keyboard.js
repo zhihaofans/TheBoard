@@ -2,8 +2,10 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
   $$view = require("../../NeXT/view"),
   kb = new $$KeyBoard({ barHidden: true }),
   { AppClipboard } = require("../api/clipboard"),
+  appClip = new AppClipboard(),
   initClipView = () => {
-    const clipText = $clipboard.text;
+    const clipText = $clipboard.text,
+      appClipList = appClip.getAll();
     $ui.push({
       props: {
         id: "keyboard_clip",
@@ -16,20 +18,19 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
           props: {
             data: [
               {
-                title: clipText ? "点击粘贴" : "剪切板为空",
-                rows: [
-                  clipText != null && clipText != undefined
-                    ? clipText
+                title: appClipList.length > 0 ? "点击粘贴" : "剪切板为空",
+                rows:
+                  appClipList.length > 0
+                    ? appClipList.map(item => item.data)
                     : undefined
-                ]
               }
             ]
           },
           layout: $layout.fill,
           events: {
             didSelect: (_sender, indexPath, _data) => {
-              if (kb.isKeyboard() && _data != null && _data != undefined) {
-                kb.insert(_data);
+              if (kb.isKeyboard()) {
+                kb.insert(appClipList[indexPath.row].data);
               }
             }
           }
@@ -51,7 +52,7 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
             data: [
               {
                 title: "文字",
-                rows: ["分享"]
+                rows: ["分享", "删掉一个字符"]
               }
             ]
           },
@@ -72,6 +73,8 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
                         }
                       });
                       break;
+                    case 1:
+                      $keyboard.delete();
                   }
                   break;
               }

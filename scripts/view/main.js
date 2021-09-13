@@ -7,7 +7,6 @@ const { AppClipboard } = require("../api/clipboard"),
     $console.info(clipItems[menuResult.index]);
   },
   initMainView = () => {
-    
     $ui.menu({
       items: ["新增", "查询"],
       handler: (title, idx) => {
@@ -35,6 +34,12 @@ const { AppClipboard } = require("../api/clipboard"),
     });
   },
   init = () => {
+    const sysClipText = $clipboard.text;
+    if (!appClip.isDataExist(sysClipText)) {
+      appClip.add({
+        data: sysClipText
+      });
+    }
     initMainView();
   };
 module.exports = {
