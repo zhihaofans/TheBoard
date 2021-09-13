@@ -3,7 +3,20 @@ const { AppClipboard } = require("../api/clipboard"),
   showAllClip = async () => {
     const clipItems = appClip.getAll(),
       menuResult = await $ui.menu(clipItems.map(item => item.data));
-    //menuResult.index , menuResult.title
+    $ui.menu({
+      items: ["分享", "删除"],
+      handler: (title, idx) => {
+        const selectItem = clipItems[menuResult.index];
+        switch (idx) {
+          case 0:
+            $share.sheet([selectItem.data]);
+            break;
+          case 1:
+            $console.info(appClip.removeItem(selectItem.uuid));
+            break;
+        }
+      }
+    });
     $console.info(clipItems[menuResult.index]);
   },
   initMainView = () => {
@@ -36,11 +49,32 @@ const { AppClipboard } = require("../api/clipboard"),
   init = () => {
     const sysClipText = $clipboard.text;
     if (!appClip.isDataExist(sysClipText)) {
-      appClip.add({
-        data: sysClipText
+      $ui.alert({
+        title: "发现新的剪切板内容，是否导入",
+        message: "",
+        actions: [
+          {
+            title: "导入",
+            disabled: false, // Optional
+            handler: () => {
+              appClip.add({
+                data: sysClipText
+              });
+              initMainView();
+            }
+          },
+          {
+            title: "不了",
+            disabled: false, // Optional
+            handler: () => {
+              initMainView();
+            }
+          }
+        ]
       });
+    } else {
+      initMainView();
     }
-    initMainView();
   };
 module.exports = {
   init

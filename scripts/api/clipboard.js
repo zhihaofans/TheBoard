@@ -115,6 +115,17 @@ class AppClipboard {
     });
     return itemList;
   }
+  removeItem(uuid) {
+    const db = this.openSql(),
+      sql = `DELETE FROM items WHERE uuid=?;`,
+      args = [uuid],
+      update_result = db.update({ sql, args });
+    db.close();
+    if (update_result.result !== true) {
+      $console.error(update_result.error);
+    }
+    return update_result.result;
+  }
 }
 module.exports = {
   SystemClipboard,
