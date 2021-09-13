@@ -5,12 +5,6 @@ function ClipboardItem(uuid, timestamp, group, data) {
   this.data = data;
 }
 
-class SystemClipboard {
-  constructor(name) {
-    this.NAME = name;
-  }
-}
-
 class AppClipboard {
   constructor(name) {
     this.SQL_FILE = "/assets/.files/sqlite/clipboard.db";
@@ -36,7 +30,7 @@ class AppClipboard {
       result = db.update(sql);
     db.close();
     if (
-      result ||
+      result.result ||
       result.error.localizedDescription == "table items already exists"
     ) {
       $console.info("CREATE TABLE items.");
@@ -126,8 +120,18 @@ class AppClipboard {
     }
     return update_result.result;
   }
+  editItem(uuid, newData) {
+    const db = this.openSql(),
+      sql = `UPDATE items SET data=? WHERE uuid=?`,
+      args = [newData, uuid],
+      update_result = db.update({ sql, args });
+    db.close();
+    if (update_result.result !== true) {
+      $console.error(update_result.error);
+    }
+    return update_result.result;
+  }
 }
 module.exports = {
-  SystemClipboard,
   AppClipboard
 };
