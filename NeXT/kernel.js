@@ -143,4 +143,57 @@ class Kernel {
     });
   }
 }
+
+class BaseUI {
+  constructor() {
+    // 通用样式
+    this.blurStyle = $blurStyle.thinMaterial;
+    this.textColor = $color("primaryText", "secondaryText");
+    this.linkColor = $color("systemLink");
+  }
+
+  underline(props = {}) {
+    return {
+      // canvas
+      type: "canvas",
+      props: props,
+      layout: (make, view) => {
+        if (view.prev === undefined) return false;
+        make.top.equalTo(view.prev.bottom);
+        make.height.equalTo(1 / $device.info.screen.scale);
+        make.left.right.inset(0);
+      },
+      events: {
+        draw: (view, ctx) => {
+          ctx.strokeColor = $color("separatorColor");
+          ctx.setLineWidth(1);
+          ctx.moveToPoint(0, 0);
+          ctx.addLineToPoint(view.frame.width, 0);
+          ctx.strokePath();
+        }
+      }
+    };
+  }
+}
+class UIKit extends BaseUI {
+  constructor(kernel) {
+    super();
+    this.kernel = kernel;
+    this.loadL10n(); // 本地化
+    this.isLargeTitle = true;
+  }
+}
+class KernelNew {
+  constructor() {
+    this.startTime = Date.now();
+    this.version = VERSION;
+    this.components = {};
+    this.plugins = {};
+    if ($file.exists("/config.json")) {
+      const config = JSON.parse($file.read("/config.json").string);
+      this.name = config.info.name;
+    }
+    this.UIKit = new UIKit(this);
+  }
+}
 module.exports = Kernel;
