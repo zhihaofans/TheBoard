@@ -1,160 +1,102 @@
-const storage = require("./storage"),
-  { UserException } = require("./object");
-
-class Core {
-  constructor({ dataBaseFile }) {
-    this.dataBaseFile = dataBaseFile;
-    this.file = new storage.File();
-  }
-}
-
+const storage = require("./storage");
 class SQLite {
-  constructor({ dataBaseFile }) {
-    this.dataBaseFile = dataBaseFile;
+  constructor({ dataBaseFile, tableId }) {
     this.file = new storage.File();
+    this.dataBaseFile = dataBaseFile;
+    this.tableId = tableId;
   }
-  init() {
-    if (this.dataBaseFile) {
-      const dataBasrSaveDir = this.file.getDirByFile(this.dataBaseFile);
-      if (dataBasrSaveDir) {
-        if (!this.file.isFile(dataBasrSaveDir)) {
-          this.file.mkdir(dataBasrSaveDir);
-        }
-        return $sqlite.open(this.dataBaseFile);
-      }
-      $console.info(this.dataBaseFile);
-    } else {
-      return undefined;
-    }
+  open() {
+    const file = new storage.File(),
+      dir = file.getDirByFile(this.dataBaseFile);
+    file.mkdir(dir);
+    return $sqlite.open(this.dataBaseFile);
   }
-  update(sql, args = undefined) {
-    const db = this.init();
-    if (db) {
-      db.update({
-        sql: sql,
-        args: args
-      });
+  createTable(tableData) {
+    const sql = `CREATE TABLE ${this.tableId}(${tableData});`,
+      db = this.open(),
+      result = db.update(sql);
+    db.close();
+    return result;
+  }
+  insert(data) {
+    const dataKeys = data.keys(),
+      dataValues = [],
+      db = this.open();
+    if (dataKeys && dataKeys.length > 0) {
+      dataKeys.map(key => dataValues.push(data[key]));
+      const sql = `INSERT INTO items (${dataKeys.toString()}) VALUES (?,?,?,?)`,
+        updateResult = db.update({ sql, args: dataValues });
       db.close();
-    } else {
-      throw new UserException({
-        name: "sqlite.update",
-        message: "sqlite.init failed",
-        source: "code"
-      });
-    }
-  }
-  createSimpleTable(tableId) {
-    if (tableId) {
-      try {
-        const db = this.init(),
-          sql = `CREATE TABLE IF NOT EXISTS ${tableId}(id TEXT PRIMARY KEY NOT NULL, value TEXT)`;
-        db.update({ sql: sql, args: undefined });
-        db.close();
-      } catch (_ERROR) {
-        $console.error(_ERROR);
+      if (updateResult.result !== true) {
+        $console.error(updateResult.error);
       }
+      return updateResult;
     } else {
-      $console.error("createSimpleTable:tableId = undefined");
-    }
-  }
-  parseSimpleQuery(result) {
-    try {
-      if (result) {
-        if (result.error !== null) {
-          $console.error(result.error);
-          return undefined;
-        }
-        const sqlResult = result.result,
-          data = [];
-        while (sqlResult.next()) {
-          data.push({
-            id: sqlResult.get("id"),
-            value: sqlResult.get("value")
-          });
-        }
-        sqlResult.close();
-        return data;
-      } else {
-        return undefined;
-      }
-    } catch (_ERROR) {
-      $console.error(`parseSimpleQuery:${_ERROR.message}`);
       return undefined;
     }
   }
-  getSimpleData(tableId, key) {
-    try {
-      if (tableId && key) {
-        this.createSimpleTable(tableId);
-        const sql = `SELECT * FROM ${tableId} WHERE id = ?`,
-          args = [key],
-          result = this.update(sql, args),
-          sql_data = this.parseSimpleQuery(result);
-        if (sql_data && sql_data.length === 1) {
-          return sql_data[0].value;
+  query(where) {
+    let db = this.open(),
+      sql = `SELECT * FROM ${this.tableId}`,
+      resultList = [];
+    if (where && where.length > 0) {
+      sql += `WHERE ${where}`;
+    }
+    db.query(sql, (rs, err) => {
+      if (err) {
+        $console.error(err);
+      }
+      while (rs.next()) {
+        resultList.push(rs.values);
+      }
+      rs.close();
+    });
+    return resultList;
+  }
+  update(whereStr, dataList) {
+    const dataKeys = dataList.keys(),
+      dataValues = [],
+      db = this.open();
+    let keyStr = "";
+    if (dataKeys && dataKeys.length > 0) {
+      dataKeys.map(key => {
+        dataValues.push(dataList[key]);
+        if (keyStr.length == 0) {
+          keyStr = `${key}=?`;
         } else {
-          return undefined;
+          keyStr += `,${key}=?`;
         }
-      } else {
-        return undefined;
-      }
-    } catch (_ERROR) {
-      $console.error(`getSimpleData:${_ERROR.message}`);
-      return undefined;
-    }
-  }
-  setSimpleData(tableId, key, value) {
-    try {
-      if (tableId && key) {
-        const db = this.init(),
-          sql = this.getSimpleData(tableId, key)
-            ? `UPDATE ${tableId} SET value=? WHERE id=?`
-            : `INSERT INTO ${tableId} (value,id) VALUES (?, ?)`,
-          args = [value, key],
-          update_result = db.update(sql, args);
+      });
+      const sql = `UPDATE ${this.tableId} SET ${keyStr} WHERE ${whereStr}`,
+        updateResult = db.update({ sql, args: dataValues });
+      db.close();
 
-        return update_result.result || false;
-      } else {
-        return false;
-      }
-    } catch (_ERROR) {
-      $console.error(`setSimpleData:${_ERROR.message}`);
-      return false;
-    }
-  }
-  remove(tableId, key) {
-    if (tableId && key) {
-      try {
-        const sql = `DELETE FROM ${tableId} WHERE id=?`;
-        this.update(sql);
-      } catch (_ERROR) {
-        $console.error(_ERROR);
-      }
-    }
-  }
-  auto(tableId, sql_key, value = undefined) {
-    if (sql_key && tableId) {
-      try {
-        if (value) {
-          this.setSimpleData(tableId, sql_key, value.toString());
-        }
-        return this.getSimpleData(tableId, sql_key) || undefined;
-      } catch (_ERROR) {
-        $console.error(`SQLite.auto:${_ERROR.message}`);
-        return undefined;
-      }
+      return updateResult;
     } else {
       return undefined;
     }
   }
-  getSql(tableId, key) {
-    return this.auto(tableId, key);
+  updateByStr(whereStr, dataStr, dataValueList) {
+    if (whereStr.length > 0 && dataStr.length > 0 && dataValueList.length > 0) {
+      const sql = `UPDATE ${this.tableId} SET ${dataStr} WHERE ${whereStr}`,
+        db = this.open(),
+        updateResult = db.update({ sql, args: dataValueList });
+      db.close();
+      return updateResult;
+    } else {
+      return undefined;
+    }
   }
-  setSql(tableId, key, value) {
-    return this.setSimpleData(tableId, key, value);
+  remove(whereStr, args) {
+    const db = this.openSql(),
+      sql = `DELETE FROM ${this.tableId} WHERE ${whereStr};`,
+      update_result = db.update({ sql, args });
+    db.close();
+    if (update_result.result !== true) {
+      $console.error(update_result.error);
+    }
+    return update_result.result;
   }
 }
 
-module.exports = {
-  SQLite
-};
+module.exports = SQLite;
