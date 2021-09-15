@@ -1,7 +1,6 @@
 const storage = require("./storage");
 class SQLite {
   constructor({ dataBaseFile, tableId }) {
-    this.file = new storage.File();
     this.dataBaseFile = dataBaseFile;
     this.tableId = tableId;
   }
@@ -88,14 +87,14 @@ class SQLite {
     }
   }
   remove(whereStr, args) {
-    const db = this.openSql(),
+    const db = this.open(),
       sql = `DELETE FROM ${this.tableId} WHERE ${whereStr};`,
       update_result = db.update({ sql, args });
     db.close();
     if (update_result.result !== true) {
       $console.error(update_result.error);
     }
-    return update_result.result;
+    return update_result;
   }
 }
 
