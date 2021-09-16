@@ -1,9 +1,11 @@
-const Kernel = require("../NeXT/kernel"),
+const { Kernel } = require("../NeXT/kernel"),
   Keyboard = require("../NeXT/keyboard"),
   kb = new Keyboard({});
 class AppKernel extends Kernel {
   constructor() {
-    super({ debugMode: true });
+    super();
+    this.setDebug(true);
+    this.setKeyboardMode(true);
     this.global = {
       SQLITE_DIR: "/assets/.files/sqlite/",
       KEYBOARD_HEIGHT: 360
@@ -29,7 +31,7 @@ class AppKernel extends Kernel {
       fileName: "setting.js",
       func: "init"
     });
-    this.viewLoader.setLaunchViewId("setting");
+    this.viewLoader.setLaunchViewId("main");
     this.viewLoader.setKeyboardViewId("keyboard");
   }
   init() {
