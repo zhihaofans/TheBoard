@@ -1,7 +1,32 @@
 class ViewKit {
-  constructor({ viewId, navButtons }) {
-    this.viewId = viewId;
+  constructor() {
+    this.viewId = undefined;
+    this.navButtons = undefined;
+    this.homeIndicatorHidden = false;
+    this.modalPresentationStyle = 0;
+    this.events = {
+      appeared: () => {
+        ///这是第一次加载完毕会出现的提示
+      },
+      shakeDetected: () => {
+        ///这是摇一摇会出现的提示
+      }
+    };
+  }
+  setHomeIndicatorHidden(homeIndicatorHidden) {
+    this.homeIndicatorHidden = homeIndicatorHidden;
+  }
+  setModalPresentationStyle(modalPresentationStyle) {
+    this.modalPresentationStyle = modalPresentationStyle;
+  }
+  setNavButtons(navButtons) {
     this.navButtons = navButtons;
+  }
+  setViewId(viewId) {
+    this.viewId = viewId;
+  }
+  setEvents(events) {
+    this.events = events;
   }
   pushView(title, views) {
     $ui.push({
@@ -10,52 +35,43 @@ class ViewKit {
         navButtons: this.navButtons
       },
       views: views,
-      events: {
-        appeared: () => {
-          $app.tips("这是第一次加载完毕会出现的提示");
-        },
-        shakeDetected: () => {
-          //摇一摇￼
-          $app.tips("这是摇一摇会出现的提示");
-        }
-      }
+      events: this.events
     });
   }
   renderView(title, views) {
     $ui.render({
       props: {
-        id: this.viewId ?? "main",
+        id: this.viewId,
         title: title,
-        homeIndicatorHidden: false,
-        modalPresentationStyle: 0,
+        homeIndicatorHidden: this.homeIndicatorHidden,
+        modalPresentationStyle: this.modalPresentationStyle,
         navButtons: this.navButtons
       },
       views: views,
-      events: {
-        appeared: () => {
-          $app.tips("这是第一次加载完毕会出现的提示");
-        },
-        shakeDetected: () => {
-          //摇一摇￼
-          $app.tips("这是摇一摇会出现的提示");
-        }
-      }
+      events: this.events
     });
   }
 }
-class ListKit extends ViewKit {
-  constructor({ viewId }) {
-    super({
-      viewId: viewId
-    });
+class ListKit {
+  constructor() {
+    this._viewKet = new ViewKit();
+    this._viewKet.setAutoRowHeight(true);
+    this.estimatedRowHeight = 10;
+    this.autoRowHeight = true;
+  }
+  setEstimatedRowHeight(estimatedRowHeight) {
+    this.estimatedRowHeight = estimatedRowHeight;
+  }
+  setAutoRowHeight(autoRowHeight) {
+    this.autoRowHeight = autoRowHeight === true;
   }
   renderIdx(title, listData, handler = (section, row, data) => {}) {
     this.renderView(title, [
       {
         type: "list",
         props: {
-          autoRowHeight: true,
-          estimatedRowHeight: 10,
+          autoRowHeight: this.autoRowHeight,
+          estimatedRowHeight: this.estimatedRowHeight,
           data: listData
         },
         layout: $layout.fill,
@@ -72,8 +88,8 @@ class ListKit extends ViewKit {
       {
         type: "list",
         props: {
-          autoRowHeight: true,
-          estimatedRowHeight: 10,
+          autoRowHeight: this.autoRowHeight,
+          estimatedRowHeight: this.estimatedRowHeight,
           data: listData
         },
         layout: $layout.fill,
