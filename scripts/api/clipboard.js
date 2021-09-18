@@ -143,14 +143,15 @@ class AppClipboard {
         args
       },
       (rs, err) => {
-        $console.error(err);
         while (rs.next()) {
+          if (err != null) {
+            $console.error(err);
+          }
           itemList.push(rs.values);
         }
         rs.close();
       }
     );
-    $console.warn(itemList);
     if (itemList.length > 0) {
       return itemList[0].data;
     }
@@ -164,8 +165,10 @@ class AppClipboard {
         args: ["last_clipboard_data"]
       },
       (rs, err) => {
+        if (err != null) {
+          $console.error(err);
+        }
         while (rs.next()) {
-          $console.warn(rs);
           if (rs.get("id") == "last_clipboard_data") {
             hasData = true;
           }

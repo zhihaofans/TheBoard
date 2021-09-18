@@ -111,13 +111,14 @@ const { AppClipboard } = require("../api/clipboard"),
     });
   },
   init = () => {
-    const sysClipText = $clipboard.text;
+    const sysClipText = $clipboard.text,
+      lastClipboardData = appClip.getLastClipboardData();
+    appClip.setLastClipboardData(sysClipText);
     if (
       sysClipText &&
       !appClip.isDataExist(sysClipText) &&
-      sysClipText != appClip.getLastClipboardData()
+      sysClipText != lastClipboardData
     ) {
-      appClip.setLastClipboardData(sysClipText);
       $ui.alert({
         title: "发现新的剪切板内容，是否导入",
         message: sysClipText,
