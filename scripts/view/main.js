@@ -14,7 +14,6 @@ const { AppClipboard } = require("../api/clipboard"),
           case 1:
             $console.info(appClip.removeItem(selectItem.uuid));
             break;
-
           case 2:
             $input.text({
               type: $kbType.text,
@@ -113,7 +112,12 @@ const { AppClipboard } = require("../api/clipboard"),
   },
   init = () => {
     const sysClipText = $clipboard.text;
-    if (sysClipText && !appClip.isDataExist(sysClipText)) {
+    if (
+      sysClipText &&
+      !appClip.isDataExist(sysClipText) &&
+      sysClipText != appClip.getLastClipboardData()
+    ) {
+      appClip.setLastClipboardData(sysClipText);
       $ui.alert({
         title: "发现新的剪切板内容，是否导入",
         message: sysClipText,
@@ -140,6 +144,7 @@ const { AppClipboard } = require("../api/clipboard"),
     } else {
       initMainView();
     }
+    appClip.setLastClipboardData(sysClipText);
   };
 module.exports = {
   init

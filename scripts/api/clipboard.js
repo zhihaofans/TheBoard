@@ -18,25 +18,26 @@ class AppClipboard {
     return $sqlite.open(this.SQL_FILE);
   }
   initClipboard() {
-    const sql = `
+    const db = this.openSql(),
+      itemsResult = db.update(`
   CREATE TABLE items(
   uuid TEXT NOT NULL,
   timestamp INTEGER,
   group_id TEXT,
   data TEXT,
   PRIMARY KEY(uuid)
-  );`,
-      db = this.openSql(),
-      result = db.update(sql);
+  );`),
+      appClipResult = db.update(`
+  CREATE TABLE appclipboard(
+  id TEXT NOT NULL,
+  data TEXT,
+  PRIMARY KEY(id)
+  );`);
     db.close();
-    if (
-      result.result ||
-      result.error.localizedDescription == "table items already exists"
-    ) {
-      $console.info("CREATE TABLE items.");
-    } else {
-      $console.error(result.error);
-    }
+    $console.info("itemsResult");
+    $console.warn(itemsResult.result ? itemsResult : itemsResult.error);
+    $console.info("appClipResult");
+    $console.warn(appClipResult.result ? appClipResult : appClipResult.error);
   }
   isDataExist(data) {
     const db = this.openSql(),
@@ -130,6 +131,55 @@ class AppClipboard {
       $console.error(update_result.error);
     }
     return update_result.result;
+  }
+  getLastClipboardData() {
+    const db = this.openSql(),
+      sql = `SELECT * FROM appclipboard WHERE id=?;`,
+      args = ["last_clipboard_data"],
+      itemList = [];
+    db.query(
+      {
+        sql,
+        args
+      },
+      (rs, err) => {
+        $console.error(err);
+        while (rs.next()) {
+          itemList.push(rs.values);
+        }
+        rs.close();
+      }
+    );
+    $console.warn(itemList);
+    if (itemList.length > 0) {
+      return itemList[0].data;
+    }
+    return undefined;
+  }
+  setLastClipboardData(data) {
+    let hasData = false;
+    this.openSql().query(
+      {
+        sql: `SELECT * FROM appclipboard WHERE id=?;`,
+        args: ["last_clipboard_data"]
+      },
+      (rs, err) => {
+        while (rs.next()) {
+          $console.warn(rs);
+          if (rs.get("id") == "last_clipboard_data") {
+            hasData = true;
+          }
+        }
+        rs.close();
+      }
+    );
+    const db = this.openSql(),
+      sql = hasData
+        ? `UPDATE appclipboard SET data=? WHERE id=?`
+        : `INSERT INTO appclipboard (data,id) VALUES (?,?)`,
+      args = [data, "last_clipboard_data"],
+      updateResult = db.update({ sql, args });
+    return updateResult.result ? updateResult : updateResult.error;
   }
 }
 module.exports = {
