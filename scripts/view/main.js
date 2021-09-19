@@ -12,7 +12,7 @@ const { AppClipboard } = require("../api/clipboard"),
             $share.sheet([selectItem.data]);
             break;
           case 1:
-            $console.info(appClip.removeItem(selectItem.uuid));
+            $ui.toast(`remove: ${appClip.removeItem(selectItem.uuid)}`);
             break;
           case 2:
             $input.text({
