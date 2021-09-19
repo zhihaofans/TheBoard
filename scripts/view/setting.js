@@ -16,11 +16,20 @@ const { AppClipboard } = require("../api/clipboard"),
           }
         }
       },
-      views: []
-    });
-    view.layout((make, view) => {
-      make.left.top.right.equalTo(0);
-      make.height.equalTo(100);
+      views: [
+        {
+          type: "tab",
+          props: {
+            bgcolor: $rgb(240, 240, 240),
+            items: ["A", "B", "C"]
+          },
+          events: {
+            changed: sender => {
+              console.log(sender.index);
+            }
+          }
+        }
+      ]
     });
   },
   init = () => {

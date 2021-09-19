@@ -83,9 +83,9 @@ const { AppClipboard } = require("../api/clipboard"),
     });
     $console.info(clipItems[menuResult.index]);
   },
-  initMainView = () => {
+  initMainView = appKernel => {
     $ui.menu({
-      items: ["新增", "查询"],
+      items: ["新增", "查询", "设置"],
       handler: (title, idx) => {
         switch (idx) {
           case 0:
@@ -106,11 +106,14 @@ const { AppClipboard } = require("../api/clipboard"),
           case 1:
             showAllClip();
             break;
+          case 2:
+            appKernel.viewLoader.openView("setting", appKernel);
+            break;
         }
       }
     });
   },
-  init = () => {
+  init = appKernel => {
     const sysClipText = $clipboard.text,
       lastClipboardData = appClip.getLastClipboardData();
     appClip.setLastClipboardData(sysClipText);
@@ -130,20 +133,20 @@ const { AppClipboard } = require("../api/clipboard"),
               appClip.add({
                 data: sysClipText
               });
-              initMainView();
+              initMainView(appKernel);
             }
           },
           {
             title: "不了",
             disabled: false, // Optional
             handler: () => {
-              initMainView();
+              initMainView(appKernel);
             }
           }
         ]
       });
     } else {
-      initMainView();
+      initMainView(appKernel);
     }
     appClip.setLastClipboardData(sysClipText);
   };
