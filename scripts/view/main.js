@@ -1,5 +1,8 @@
 const { AppClipboard } = require("../api/clipboard"),
   appClip = new AppClipboard(),
+  showSettings = () => {
+    
+  },
   showAllClip = async () => {
     const clipItems = appClip.getAll(),
       menuResult = await $ui.menu(clipItems.map(item => item.data));
@@ -107,7 +110,7 @@ const { AppClipboard } = require("../api/clipboard"),
             showAllClip();
             break;
           case 2:
-            appKernel.viewLoader.openView("setting", appKernel);
+            showSettings();
             break;
         }
       }
