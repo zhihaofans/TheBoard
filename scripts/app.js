@@ -39,5 +39,10 @@ class AppKernel extends Kernel {
     }
   }
 }
-
-module.exports = AppKernel;
+const init = () => {
+  const app = new AppKernel();
+  app.init();
+};
+module.exports = {
+  init
+};

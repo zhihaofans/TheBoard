@@ -1,7 +1,5 @@
 try {
-  const app = require("./scripts/app"),
-    appKernel = new app();
-  appKernel.init();
+  require("./scripts/app").init();
 } catch (error) {
   $console.error(error);
   $ui.alert({
