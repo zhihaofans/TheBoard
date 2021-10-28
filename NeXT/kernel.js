@@ -133,6 +133,9 @@ class Kernel {
     this.appInfo = $addin.current;
     this.DEBUG_MODE = false;
     this.KEYBOARD_MODE = false;
+    this.IS_APP_ENV = $app.env == $env.app;
+    this.APP_QUERY = $context.query;
+    this.CONTEXT_ITEMS = $context.allItems;
     this.config = new Config();
     this.updater = new Update({
       appVersion: this.appInfo.version,

@@ -15,11 +15,21 @@ class Keyboard {
     $keyboard.insert(text);
   }
   getAllText() {
-    return $keyboard.getAllText();
+    return this.isKeyboard ? $keyboard.getAllText() : undefined;
   }
   paste() {
     if ($clipboard.text) {
       this.insert($clipboard.text);
+    }
+  }
+  tokenize(handler) {
+    if (this.isKeyboard()) {
+      $text.tokenize({
+        text: this.getAllText(),
+        handler: handler
+      });
+    } else {
+      handler(undefined);
     }
   }
 }
