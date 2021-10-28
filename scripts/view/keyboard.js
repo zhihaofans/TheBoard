@@ -1,16 +1,19 @@
 const $$KeyBoard = require("../../NeXT/keyboard"),
-  $$view = require("../../NeXT/view"),
-  kb = new $$KeyBoard({ barHidden: true }),
+  kb = new $$KeyBoard({ barHidden: false }),
   { AppClipboard } = require("../api/clipboard"),
-  appClip = new AppClipboard(),
-  initClipView = () => {
-    const clipText = $clipboard.text,
-      appClipList = appClip.getAll();
-    $ui.push({
+  { ActionRunner } = require("../api/action"),
+  appClip = new AppClipboard();
+class KeyboardView {
+  constructor(appKernel) {
+    this.appKernel = appKernel;
+    this.kbAction = new ActionRunner(appKernel);
+  }
+  initView() {
+    kb.setHeight(this.appKernel.global.KEYBOARD_HEIGHT || 360);
+    $ui.render({
       props: {
-        id: "keyboard_clip",
-        title: "剪切板",
-        navBarHidden: true
+        id: "keyboard_main",
+        title: ""
       },
       views: [
         {
@@ -18,25 +21,73 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
           props: {
             data: [
               {
-                title: appClipList.length > 0 ? "点击粘贴" : "剪切板为空",
-                rows:
-                  appClipList.length > 0
-                    ? appClipList.map(item => item.data)
-                    : undefined
+                title: "test",
+                rows: ["剪切板", "动作", "动作(旧)"]
               }
             ]
           },
           layout: $layout.fill,
           events: {
             didSelect: (_sender, indexPath, _data) => {
-              if (kb.isKeyboard()) {
-                kb.insert(appClipList[indexPath.row].data);
+              const row = indexPath.row;
+              switch (row) {
+                case 0:
+                  initClipView(this.appKernel);
+                  break;
+
+                case 1:
+                  $console.warn(
+                    this.kbAction.runAction(this.kbAction.launcherActionId)
+                  );
+                  break;
+                case 2:
+                  initActionView(this.appKernel);
+                  break;
               }
             }
           }
         }
       ]
     });
+  }
+}
+const initClipView = () => {
+    const appClipList = appClip.getAll();
+    if (appClipList.length > 0) {
+      $ui.push({
+        props: {
+          id: "keyboard_clip",
+          title: "剪切板",
+          navBarHidden: true
+        },
+        views: [
+          {
+            type: "list",
+            props: {
+              data: [
+                {
+                  title: appClipList.length > 0 ? "点击粘贴" : "剪切板为空",
+                  rows:
+                    appClipList.length > 0
+                      ? appClipList.map(item => item.data)
+                      : []
+                }
+              ]
+            },
+            layout: $layout.fill,
+            events: {
+              didSelect: (_sender, indexPath, _data) => {
+                if (kb.isKeyboard()) {
+                  kb.insert(appClipList[indexPath.row].data);
+                }
+              }
+            }
+          }
+        ]
+      });
+    } else {
+      $ui.toast("剪切板为空");
+    }
   },
   initActionView = () => {
     $ui.push({
@@ -84,101 +135,15 @@ const $$KeyBoard = require("../../NeXT/keyboard"),
       ]
     });
   },
-  initMain = appKernel => {
-    $ui.render({
-      views: [
-        {
-          type: "tab",
-          props: {
-            items: ["剪切板", "动作"],
-            dynamicWidth: true // dynamic item width, default is false
-          },
-          layout: function (make) {
-            make.left.top.right.equalTo(0);
-            make.height.equalTo(40);
-          },
-          events: {
-            changed: sender => {
-              switch (sender.index) {
-                case 0:
-                  break;
-              }
-            }
-          }
-        },
-        {
-          type: "list",
-          props: {
-            data: [
-              {
-                title: "",
-                rows: ["剪切板", "b"]
-              }
-            ]
-          },
-          layout: (make, view) => {
-            make.top.inset(40);
-            make.width.equalTo(view.wight);
-          },
-          events: {
-            didSelect: (_sender, indexPath, _data) => {
-              const row = indexPath.row;
-              switch (row) {
-                case 0:
-                  initClipView(appKernel);
-                  break;
-              }
-            }
-          }
-        }
-      ]
-    });
-  },
-  initView = appKernel => {
-    kb.setHeight(appKernel.global.KEYBOARD_HEIGHT || 360);
-    $ui.render({
-      props: {
-        id: "keyboard_main",
-        title: ""
-      },
-      views: [
-        {
-          type: "list",
-          props: {
-            data: [
-              {
-                title: "",
-                rows: ["剪切板", "动作"]
-              }
-            ]
-          },
-          layout: $layout.fill,
-          events: {
-            didSelect: (_sender, indexPath, _data) => {
-              const row = indexPath.row;
-              switch (row) {
-                case 0:
-                  initClipView(appKernel);
-                  break;
-                case 1:
-                  initActionView(appKernel);
-                  break;
-              }
-            }
-          }
-        }
-      ]
-    });
-  },
   init = appKernel => {
-    const appClip = new AppClipboard("");
+    const appClip = new AppClipboard(""),
+      kbView = new KeyboardView(appKernel);
     $console.info(appClip.CREATE_ITEM_TABLE_RESULT);
     if (kb.isKeyboard()) {
-      initView(appKernel);
+      kbView.initView();
     } else {
       if (appKernel.DEBUG_MODE) {
-        initView(appKernel);
-        //$ui.render("kb.ux");
+        kbView.initView();
       } else {
         $ui.alert({
           title: "Error",

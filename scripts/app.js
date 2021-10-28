@@ -24,7 +24,7 @@ class AppKernel extends Kernel {
       fileName: "keyboard.js",
       func: "init"
     });
-    this.viewLoader.setLaunchViewId("main");
+    this.viewLoader.setLaunchViewId("keyboard");
     this.viewLoader.setKeyboardViewId("keyboard");
   }
   init() {

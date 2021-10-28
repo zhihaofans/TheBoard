@@ -1,7 +1,13 @@
 const { AppClipboard } = require("../api/clipboard"),
   appClip = new AppClipboard(),
-  showSettings = () => {
-    
+  showSettings = async() => {
+    const menuResult = await $ui.menu(["输入法全屏"]);
+    //menuResult.index , menuResult.title
+    switch(menuResult.index){
+      case 0:
+      
+      break
+    }
   },
   showAllClip = async () => {
     const clipItems = appClip.getAll(),
